@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>India Insight - State Intelligence Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"/>
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <div class="shell" id="dashboardCapture">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <div class="logo-ring lr1"></div>
+          <div class="logo-ring lr2"></div>
+          <div class="logo-dot"></div>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">INDIA<br>INSIGHT</div>
+          <div class="brand-tag">STATE INTELLIGENCE</div>
+        </div>
+      </div>
+
+      <div class="sidebar-rule"></div>
+
+      <div class="news-brief sidebar-news" id="stateNewsBrief">
+        <div class="news-head">
+          <div>
+            <div class="news-kicker"><i class="ri-newspaper-line"></i> State News Brief</div>
+            <p class="news-summary" id="newsSummary">English state updates powered by backend news + Groq analysis.</p>
+          </div>
+          <button class="news-refresh" id="newsRefresh" type="button"><i class="ri-refresh-line"></i></button>
+        </div>
+        <div id="newsList" class="news-list" aria-live="polite">
+          <button class="news-item" type="button">Loading latest India state news...</button>
+        </div>
+        <div class="news-analysis" id="newsAnalysis">Click a headline for AI analysis.</div>
+      </div>
+
+      <div class="sidebar-foot">
+        <div class="live-row">
+          <span class="live-pulse"></span>
+          <span class="live-txt">LIVE DATA STREAM</span>
+        </div>
+        <div class="refresh-row">
+          <span class="refresh-lbl">NEXT REFRESH</span>
+          <span class="refresh-val" id="refreshCounter">04:59</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <main class="main">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="page-id">
+          <span class="page-eyebrow">DASHBOARD / OVERVIEW</span>
+          <h1 class="page-title">State Overview</h1>
+        </div>
+
+        <label class="search-wrap" for="searchInput">
+          <i class="ri-search-line"></i>
+          <input id="searchInput" type="text" placeholder="Search states or metrics..." autocomplete="off"/>
+          <button class="search-btn" id="searchButton" type="button" aria-label="Search"><i class="ri-arrow-right-line"></i></button>
+        </label>
+
+        <div class="topbar-right">
+          <button class="hdr-btn" id="themeToggle">
+            <i class="ri-sun-line" id="themeIcon"></i>
+            <span id="themeLabel">Light</span>
+          </button>
+          <button class="hdr-icon-btn" id="refreshButton"><i class="ri-refresh-line"></i></button>
+        </div>
+      </header>
+
+      <!-- CONTROLS -->
+      <div class="controls-bar">
+        <div class="ctrl-block ctrl-metric">
+          <span class="ctrl-lbl">ACTIVE METRIC</span>
+          <div class="metric-sel-wrap">
+            <span class="metric-ico"><i class="ri-database-2-line"></i></span>
+            <select id="metricSelect"></select>
+            <i class="ri-arrow-down-s-line sel-caret"></i>
+          </div>
+        </div>
+
+        <div class="ctrl-block ctrl-type">
+          <span class="ctrl-lbl">DATA CATEGORY</span>
+          <div class="chips" id="typeChips">
+            <button class="chip active" data-type="all">All</button>
+            <button class="chip" data-type="realtime"><span class="c-live"></span>Real-time</button>
+            <button class="chip" data-type="daily">Daily</button>
+            <button class="chip" data-type="static">Static</button>
+          </div>
+        </div>
+
+        <div class="pulse-card" id="indiaPulseCard">
+          <div class="pulse-hd">
+            <div>
+              <span class="pulse-dot"></span>
+              <span class="pulse-kicker">India Pulse</span>
+            </div>
+            <span class="pulse-live">Live view</span>
+          </div>
+          <div class="pulse-grid">
+            <div>
+              <span>Leader</span>
+              <strong id="pulseLeader">Kerala</strong>
+            </div>
+            <div>
+              <span>Average</span>
+              <strong id="pulseAverage">69.3 AQI</strong>
+            </div>
+            <div>
+              <span>Watchlist</span>
+              <strong id="pulseWatch">Delhi</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- HERO -->
+      <div class="hero-grid">
+
+        <!-- MAP PANEL -->
+        <div class="map-panel">
+          <div class="map-panel-hd">
+            <div>
+              <div class="panel-title">Choropleth Map</div>
+              <div class="panel-sub">India — State-level view</div>
+            </div>
+            <div class="map-ctrls">
+              <button class="mc-btn" id="mapHome" title="Reset view"><i class="ri-focus-3-line"></i></button>
+              <button class="mc-btn" id="mapZoomIn" title="Zoom in"><i class="ri-add-line"></i></button>
+              <button class="mc-btn" id="mapZoomOut" title="Zoom out"><i class="ri-subtract-line"></i></button>
+              <button class="mc-btn" id="mapFocus" title="Best state"><i class="ri-star-line"></i></button>
+            </div>
+          </div>
+
+          <div class="map-stage" id="mapStage">
+            <div class="map-tt" id="mapTooltip">
+              <div class="tt-state" id="tooltipState">Uttar Pradesh</div>
+              <div class="tt-metric" id="tooltipMetric">Air Quality Index</div>
+              <div class="tt-value" id="tooltipValue">128</div>
+              <div class="tt-status" id="tooltipStatus">Unhealthy for Sensitive</div>
+            </div>
+
+            <div class="map-legend">
+              <div class="ml-title" id="legendTitle">AQI SCALE</div>
+              <div class="ml-gradient"></div>
+              <div class="ml-ends"><span>BEST</span><span>WORST</span></div>
+              <div class="ml-list">
+                <div><span class="mld" style="background:#7e72ff"></span>Excellent</div>
+                <div><span class="mld" style="background:#6ba7ff"></span>Good</div>
+                <div><span class="mld" style="background:#94def7"></span>Moderate</div>
+                <div><span class="mld" style="background:#ffe06a"></span>Poor</div>
+                <div><span class="mld" style="background:#ff9d21"></span>Bad</div>
+                <div><span class="mld" style="background:#ff4769"></span>Critical</div>
+              </div>
+            </div>
+
+            <div class="map-svg-wrap">
+              <svg id="indiaMap" class="india-map" viewBox="0 0 640 760" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIDE COLUMN -->
+        <div class="side-col">
+
+          <div class="side-card">
+            <div class="sc-hd">
+              <div>
+                <div class="sc-title">Top States</div>
+                <div class="sc-sub" id="rankingSubtitle">By AQI</div>
+              </div>
+              <button class="sc-link" id="viewAllTop">View all <i class="ri-arrow-right-line"></i></button>
+            </div>
+            <div id="topStatesList" class="rank-list"></div>
+          </div>
+
+          <div class="side-card insight-card">
+            <div class="sc-hd">
+              <div>
+                <div class="sc-title">
+                  <span class="ai-badge"><i class="ri-sparkling-2-line"></i></span>
+                  AI Insight
+                </div>
+                <div class="sc-sub">Choose a state to analyze</div>
+              </div>
+              <select id="analysisStateSelect" class="analysis-select" aria-label="Choose state for AI analysis"></select>
+            </div>
+            <div class="insight-metrics" id="insightMetrics" aria-hidden="true"></div>
+            <p id="aiInsightText" class="insight-body"></p>
+            <div class="insight-actions">
+              <button class="outline-btn" id="viewAnalysis">Full analysis <i class="ri-arrow-right-up-line"></i></button>
+              <button class="chat-toggle" id="aiChatToggle" type="button"><i class="ri-chat-3-line"></i> Chat</button>
+            </div>
+            <div class="ai-chat" id="aiChatPanel" aria-hidden="true">
+              <div class="ai-chat-log" id="aiChatLog">
+                <div class="ai-msg ai-msg-bot">Ask me about the dashboard, any Indian state, or just chat normally.</div>
+              </div>
+              <form class="ai-chat-form" id="aiChatForm">
+                <input id="aiChatInput" type="text" placeholder="Ask anything..." autocomplete="off"/>
+                <button type="submit" aria-label="Send"><i class="ri-send-plane-2-line"></i></button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="stats-row" id="statStrip"></div>
+
+      <!-- CATEGORIES -->
+      <div class="cat-panel">
+        <div class="cat-hd">
+          <div class="cat-title">Explore by Category</div>
+          <div class="cat-sub">Dive into specific data domains</div>
+        </div>
+        <div class="cat-grid" id="categoryGrid">
+          <button class="cat-tile" data-cat="Weather"><i class="ri-sun-cloudy-line"></i><span>Weather</span></button>
+          <button class="cat-tile" data-cat="Environment"><i class="ri-plant-line"></i><span>Environment</span></button>
+          <button class="cat-tile" data-cat="Economy"><i class="ri-line-chart-line"></i><span>Economy</span></button>
+          <button class="cat-tile" data-cat="Health"><i class="ri-heart-pulse-line"></i><span>Health</span></button>
+          <button class="cat-tile" data-cat="Education"><i class="ri-book-open-line"></i><span>Education</span></button>
+          <button class="cat-tile" data-cat="Infrastructure"><i class="ri-building-4-line"></i><span>Infrastructure</span></button>
+          <button class="cat-tile" data-cat="Governance"><i class="ri-government-line"></i><span>Governance</span></button>
+          <button class="cat-tile" data-cat="Society"><i class="ri-community-line"></i><span>Society</span></button>
+          <button class="cat-tile cat-all" data-cat="View All"><i class="ri-apps-2-line"></i><span>View All</span></button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- DRAWER -->
+  <aside class="drawer" id="detailsDrawer" aria-hidden="true">
+    <div class="drawer-hd">
+      <div>
+        <div class="drawer-eyebrow">STATE PROFILE</div>
+        <h2 id="drawerStateName">Uttar Pradesh</h2>
+        <div id="drawerStateMeta" class="drawer-meta">Lucknow · Subtropical Monsoon</div>
+      </div>
+      <button class="hdr-icon-btn" id="closeDrawer"><i class="ri-close-line"></i></button>
+    </div>
+
+    <div class="drawer-kpis">
+      <div class="dkpi">
+        <div class="dkpi-lbl">CAPITAL / LANGUAGE</div>
+        <div class="dkpi-val" id="drawerActiveMetric">Air Quality</div>
+        <div class="dkpi-sub" id="drawerActiveValue">128 AQI</div>
+      </div>
+      <div class="dkpi dkpi-accent">
+        <div class="dkpi-lbl">POPULATION</div>
+        <div class="dkpi-val" id="drawerRank">#5</div>
+        <div class="dkpi-sub" id="drawerPopulationSub">Official profile</div>
+      </div>
+    </div>
+
+    <div class="drawer-body">
+      <div class="m-section">
+        <div class="m-sec-hd"><span>Official Profile</span><span class="m-ct">11</span></div>
+        <div class="m-grid" id="staticMetrics"></div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="news-modal" id="newsModal" aria-hidden="true">
+    <div class="news-modal-hd">
+      <div>
+        <div class="news-modal-kicker">News Intelligence</div>
+        <h3 id="newsModalTitle">State news headline</h3>
+        <p id="newsModalSource">Source</p>
+      </div>
+      <button class="hdr-icon-btn" id="closeNewsModal"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="news-modal-body">
+      <div id="newsModalAnalysis" class="news-modal-analysis"></div>
+      <a id="newsModalLink" class="outline-btn news-modal-link" href="#" target="_blank" rel="noreferrer">Open source <i class="ri-arrow-right-up-line"></i></a>
+    </div>
+  </section>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="./india-official-outline.js"></script>
+  <script src="./india-state.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
